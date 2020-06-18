@@ -1,27 +1,31 @@
 from netifaces import interfaces, ifaddresses, AF_INET
+import uuid
 
 
-class NodeList:
+class NodeList(dict):
     def __init__(self):
-        #self._add_my_node()
-        self._add_my_node()
+        super().__init__()
+        self.node_id = None
+        self.node = None
 
     def add_node(self):
         pass
 
-    def _add_my_node(self):
+    def add_my_node(self):
+        # 自分のIPは初回の依頼の返信時に教えてもらうほうがいいかもしれない(1台目は無理なので手動？)
         # print(netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr'])
+        self.node_id = uuid.uuid4()
         my_ip = ifaddresses('en0')[AF_INET][0]['addr']
-        print(my_ip)
         my_node = Node(my_ip)
-        print(my_node)
+        self.node = my_node
 
 
 class Node:
-    def __init__(self, ip):
+    def __init__(self, ip, group_id=None, is_primary=False, is_me=False):
         self.ip = ip
-        self.group_id = None
-        self.is_primary = False
+        self.group_id = group_id
+        self.is_primary = is_primary
+        self.is_me = is_me
 
     def set_ip(self, ip):
         self.ip = ip
