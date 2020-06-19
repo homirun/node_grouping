@@ -15,9 +15,14 @@ class NodeList(dict):
         # 自分のIPは初回の依頼の返信時に教えてもらうほうがいいかもしれない(1台目は無理なので手動？)
         # print(netifaces.ifaddresses('eth0')[netifaces.AF_INET][0]['addr'])
         self.node_id = uuid.uuid4()
-        my_ip = ifaddresses('en0')[AF_INET][0]['addr']
-        my_node = Node(my_ip)
-        self.node = my_node
+        my_ip = None
+        try:
+            my_ip = ifaddresses('en0')[AF_INET][0]['addr']
+        except ValueError:
+            my_ip = ifaddresses('eth0')[AF_INET][0]['addr']
+        finally:
+            my_node = Node(my_ip)
+            self.node = my_node
 
 
 class Node:

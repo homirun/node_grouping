@@ -2,7 +2,8 @@ import requests
 import json
 from flask import Flask, request
 from multiprocessing import Pool
-
+from node_grouping_test import notified_add_request
+import time
 app = Flask(__name__)
 
 
@@ -12,6 +13,11 @@ def get_add_request():
     print('/*----get_add_request----*/')
     request_data = request.get_data()
     print(request_data)
+    print('fires')
+    notified_add_request(request_data)
+    time.sleep(5)
+
+    return json.dumps({'status': 200, 'response': 'request_response', 'node_list': {'hoge': 'fuga'}})
 
 
 def start_api_server():
@@ -24,13 +30,16 @@ def throw_add_request(node_list, request_ip, my_ip):
     # up_timeを追加するかも
     print('/*----throw_add_request----*/')
     try:
-        res = requests.post('http://' + request_ip + '/api/add_request',
+        request_url = 'http://' + request_ip + '/api/add_request'
+        print(request_url)
+        res = requests.post(request_url,
                             json.dumps({'type': 'add_request', 'sender_ip': my_ip}),
                             headers={'Content-Type': 'application/json'})
-        res = json.loads(res.json())
+        res = res.json()
 
-        if res['type'] == 'request_response' and res['status'] == 200:
-            pass
+        if res['response'] == 'request_response' and res['status'] == 200:
+            print('OK: add request')
+            print(res)
 
     except requests.exceptions.RequestException as e:
         print(e)
