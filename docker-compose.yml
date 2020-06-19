@@ -1,0 +1,21 @@
+version: '3'
+services:
+  node1:
+    build: ./
+    image: python:3.8
+    container_name: node1
+    volumes:
+      - ./:/var/
+    tty: true
+    ports:
+      - 7000:5000
+
+  node2:
+    build: ./
+    image: python:3.8
+    container_name: node2
+    volumes:
+      - ./:/var/
+    tty: true
+    ports:
+      - 8000:5000
