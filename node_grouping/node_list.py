@@ -1,6 +1,7 @@
 from netifaces import interfaces, ifaddresses, AF_INET
 import uuid
 import json
+import uptime
 
 
 # class NodeList(dict):
@@ -27,8 +28,9 @@ import json
 
 
 class Node:
-    def __init__(self, ip, group_id=None, is_primary=False, is_me=False):
+    def __init__(self, ip, boot_time, group_id=None, is_primary=False, is_me=False):
         self.ip = ip
+        self.boot_time = boot_time
         self.group_id = group_id
         self.is_primary = is_primary
         self.is_me = is_me
@@ -57,27 +59,32 @@ class NodeEncoder(json.JSONEncoder):
         print(o)
         if isinstance(o, Node):
             return o.__dict__
-        elif isinstance(o, object):
+        elif isinstance(o, object) and hasattr(o, '__dict__'):
             return o.__dict__
+        elif isinstance(o, object):
+            return super(NodeEncoder, self).default(o)
         else:
             raise TypeError
 
 
 def create_node_list():
-    with open('./node_list', mode='w') as f:
-        node_id = create_node_id()
-        my_ip = None
-        try:
-            my_ip = ifaddresses('en0')[AF_INET][0]['addr']
-        except ValueError:
-            my_ip = ifaddresses('eth0')[AF_INET][0]['addr']
-        finally:
-            my_node = Node(my_ip)
+    node_id = create_node_id()
+    my_ip = None
+    try:
+        my_ip = ifaddresses('en0')[AF_INET][0]['addr']
+    except ValueError:
+        my_ip = ifaddresses('eth0')[AF_INET][0]['addr']
+    finally:
+        my_node = Node(ip=my_ip, boot_time=get_boot_unix_time())
 
-        pre_node_list = dict({str(node_id): my_node.__dict__})
+    pre_node_list = dict({str(node_id): my_node.__dict__})
 
     return pre_node_list
 
 
 def create_node_id():
     return uuid.uuid4()
+
+
+def get_boot_unix_time():
+    return uptime.boottime().timestamp()

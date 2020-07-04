@@ -1,6 +1,6 @@
 from node_grouping.node_network import *
 from node_grouping.node_list import *
-import uuid
+import os
 import threading
 import json
 from multiprocessing import Value, Manager
@@ -42,12 +42,6 @@ def _init_connect_network():
             # resの値をnode_listへ
             pass
     return pre_node_list
-
-
-# def notified_add_request(add_information):
-#     global node_list
-#     print(add_information)
-#
 
 
 if __name__ == '__main__':
