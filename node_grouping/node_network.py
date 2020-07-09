@@ -15,7 +15,6 @@ def get_add_request():
     request_data = request.get_data()
     print(request_data)
     request_obj = json.loads(request_data)
-    # TODO: boot timeではなく送られてきた値を入れる
     add_node_obj = Node(ip=request_obj['sender_ip'], boot_time=request_obj['boot_time'])
     node_id = create_node_id()
     node_list.update({str(node_id): add_node_obj})

@@ -1,5 +1,6 @@
 from node_grouping.node_network import *
 from node_grouping.node_list import *
+from node_grouping.grouping import *
 import os
 import threading
 import json
@@ -21,6 +22,11 @@ def main():
     api_server_thread = threading.Thread(target=start_api_server, args=[node_list], name='api_server')
     # api_server_thread.setDaemon(True)
     api_server_thread.start()
+    # TODO: sleep入れないとタイミングによっては変数の中がNONEになるのでエラーが出たら数秒後に再度ソートさせる処理を挟む
+    time.sleep(5)
+    print('node_list_main')
+    print(node_list)
+    grouping(node_list)
 
 
 def _init_connect_network():
@@ -37,10 +43,10 @@ def _init_connect_network():
         if res is False:
             # もし他のノードが存在しなかった時
             pre_node_list = create_node_list()
-            print(pre_node_list)
         else:
             # resの値をnode_listへ
-            pass
+            pre_node_list = res['node_list']
+
     return pre_node_list
 
 
