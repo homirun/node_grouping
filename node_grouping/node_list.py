@@ -57,7 +57,6 @@ class Node:
 
 class NodeEncoder(json.JSONEncoder):
     def default(self, o):
-        print(o)
         if isinstance(o, Node):
             return o.__dict__
         elif isinstance(o, object) and hasattr(o, '__dict__'):

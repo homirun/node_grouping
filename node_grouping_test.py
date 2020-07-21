@@ -29,8 +29,13 @@ def main():
     secondary_node_list = node_list.copy()
     while True:
         for i in range(len(node_list)):
+            # time.sleep(3)
+            # print('prime:')
+            # print(node_list)
+            # print('second:')
+            # print(secondary_node_list)
             if len(node_list) != len(secondary_node_list) or node_list[i]['id'] != secondary_node_list[i]['id']:
-                grouping(node_list)
+                node_list = grouping(node_list.copy())
                 secondary_node_list = node_list.copy()
                 break
 
