@@ -28,7 +28,8 @@ import uptime
 
 
 class Node:
-    def __init__(self, ip, boot_time, group_id=None, is_primary=False, is_me=False):
+    def __init__(self, uid, ip, boot_time, group_id=None, is_primary=False, is_me=False):
+        self.id = uid
         self.ip = ip
         self.boot_time = boot_time
         self.group_id = group_id
@@ -75,15 +76,16 @@ def create_node_list():
     except ValueError:
         my_ip = ifaddresses('eth0')[AF_INET][0]['addr']
     finally:
-        my_node = Node(ip=my_ip, boot_time=get_boot_unix_time())
+        my_node = Node(uid=node_id, ip=my_ip, boot_time=get_boot_unix_time())
 
-    pre_node_list = dict({str(node_id): my_node.__dict__})
+    pre_node_list = list()
+    pre_node_list.append(my_node.__dict__)
 
     return pre_node_list
 
 
 def create_node_id():
-    return uuid.uuid4()
+    return str(uuid.uuid4())
 
 
 def get_boot_unix_time():

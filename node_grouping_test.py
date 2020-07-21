@@ -11,22 +11,30 @@ import logging
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(threadName)s: %(message)s')
-node_list = dict()
+node_list = list()
+secondary_node_list = list()
 print('global')
 
 
 def main():
-    global node_list
+    global node_list, secondary_node_list
     print('/*----main----*/')
     node_list = _init_connect_network()
     api_server_thread = threading.Thread(target=start_api_server, args=[node_list], name='api_server')
     # api_server_thread.setDaemon(True)
     api_server_thread.start()
-    # TODO: sleep入れないとタイミングによっては変数の中がNONEになるのでエラーが出たら数秒後に再度ソートさせる処理を挟む
-    time.sleep(5)
-    print('node_list_main')
-    print(node_list)
+
+    # nodelistに更新があったらグルーピングを行う copyは値渡し
     grouping(node_list)
+    secondary_node_list = node_list.copy()
+    while True:
+        for i in range(len(node_list)):
+            if len(node_list) != len(secondary_node_list) or node_list[i]['id'] != secondary_node_list[i]['id']:
+                grouping(node_list)
+                secondary_node_list = node_list.copy()
+                break
+
+        # ここにそれ以降の処理を書く　あんまりいい実装じゃない
 
 
 def _init_connect_network():
