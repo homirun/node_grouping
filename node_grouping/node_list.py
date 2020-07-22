@@ -67,8 +67,8 @@ class NodeEncoder(json.JSONEncoder):
             raise TypeError
 
 
-def create_node_list():
-    node_id = create_node_id()
+def create_node_list(my_node_id):
+    node_id = my_node_id
     my_ip = None
     try:
         my_ip = ifaddresses('en0')[AF_INET][0]['addr']
@@ -111,7 +111,6 @@ def get_my_group_node_list(nodes, my_group_id):
 
 def get_is_primary(nodes, my_id):
     is_primary = False
-
     for i in nodes:
         if i['id'] == my_id:
             is_primary = i['is_primary']

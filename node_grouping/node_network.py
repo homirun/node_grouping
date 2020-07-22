@@ -28,9 +28,10 @@ def renew_node_list():
     request_data = request.get_data()
     request_obj = json.loads(request_data)
     print(request_obj)
-    # node_list.clear()
-    # node_list.append(request_obj)
+    node_list.clear()
+    node_list.extend(request_obj['node_list'])
     # TODO:node_listの参照先を変えずにどうにかする方法を探す
+    return json.dumps({'status': 200, 'response': 'request_response'}, cls=NodeEncoder)
 
 
 def start_api_server(nodes):
@@ -50,7 +51,7 @@ def share_node_list(nodes, my_node_id):
         print('**** list_share: primary *****')
         # 他のprimaryへ
         for i in nodes:
-            if i['is_primary'] is True:
+            if i['is_primary'] is True and i['id'] != my_node_id:
                 destination_ip_list.append(i['ip'])
 
         # 自グループの一般ノードへ
@@ -61,13 +62,20 @@ def share_node_list(nodes, my_node_id):
 
     else:
         # 自分がPrimaryではないとき自グループのprimaryへ
+        print('**** list_share: normal *****')
         for i in my_group_node_list:
             if i['is_primary'] is True:
                 destination_ip_list.append(i['ip'])
                 break
 
+    print('destination_ip_list:')
+    print(destination_ip_list)
+
+    # TODO: portを固定するかどうか決める
+    api_port = ':5000'
+
     for i in destination_ip_list:
-        request_url = 'http://' + i + '/api/renew_node_list'
+        request_url = 'http://' + i + api_port + '/api/renew_node_list'
         res = requests.post(request_url,
                             json.dumps({'type': 'node_list_share', 'node_list': nodes}),
                             headers={'Content-Type': 'application/json'})
@@ -76,15 +84,15 @@ def share_node_list(nodes, my_node_id):
 
 
 # 送信側
-def throw_add_request(nodes, request_ip, my_ip):
+def throw_add_request(my_node_id, nodes, request_ip, my_ip):
     # up_timeを追加するかも
     print('/*----throw_add_request----*/')
 
     try:
         request_url = 'http://' + request_ip + '/api/add_request'
-        node_id = create_node_id()
+
         res = requests.post(request_url,
-                            json.dumps({'type': 'add_request', 'id': node_id,
+                            json.dumps({'type': 'add_request', 'id': my_node_id,
                                         'sender_ip': my_ip, 'boot_time': get_boot_unix_time()}),
                             headers={'Content-Type': 'application/json'})
         res = res.json()
@@ -95,6 +103,6 @@ def throw_add_request(nodes, request_ip, my_ip):
 
     except requests.exceptions.RequestException as e:
         print(e)
-        return False, None
+        return False
 
-    return res, node_id
+    return res

@@ -45,6 +45,8 @@ def grouping(node_list):
         last_node_groups_count = node_list_length % group_num
 
         # 最後のグループだけ端数のノードの処理があるため別
+        # TODO: ここの処理のせいで5ノード3グループのときなどに[1,2,3,3,3]のようになってしまう
+
         local_grouped_list = list()
         flag = True
         for k in range(int(node_list_length / group_num) + last_node_groups_count):

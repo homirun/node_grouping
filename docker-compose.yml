@@ -19,3 +19,13 @@ services:
     tty: true
     ports:
       - 8000:5000
+
+  node3:
+    build: ./
+    image: python:3.8
+    container_name: node3
+    volumes:
+      - ./:/var/
+    tty: true
+    ports:
+      - 9000:5000
