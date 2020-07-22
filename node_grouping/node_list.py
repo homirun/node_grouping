@@ -89,3 +89,21 @@ def create_node_id():
 
 def get_boot_unix_time():
     return uptime.boottime().timestamp()
+
+
+def get_my_group_id(nodes, my_id):
+    my_group_id = None
+
+    for i in nodes:
+        if i['id'] == my_id:
+            my_group_id = i['group_id']
+
+    return my_group_id
+
+
+def get_my_group_node_list(nodes, my_group_id):
+    my_group_node_list = list()
+    for i in nodes:
+        if i['group_id'] == my_group_id:
+            my_group_node_list.append(i)
+    return my_group_node_list

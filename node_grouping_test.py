@@ -13,7 +13,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(threadName)s: %(message)s')
 node_list = list()
 secondary_node_list = list()
-print('global')
+my_node_id = None
 
 
 def main():
@@ -25,26 +25,29 @@ def main():
     api_server_thread.start()
 
     # nodelistに更新があったらグルーピングを行う copyは値渡し
-    grouping(node_list)
+    grouping(node_list.copy())
     secondary_node_list = node_list.copy()
     while True:
+        # time.sleep(3)
+        # print('prime:')
+        # print(node_list)
+        # print('second:')
+        # print(secondary_node_list)
+        # print('id:')
+        # print(id(node_list))
+        sorted_node_list = boot_time_upper_sort(node_list)
         for i in range(len(node_list)):
-            # time.sleep(3)
-            # print('prime:')
-            # print(node_list)
-            # print('second:')
-            # print(secondary_node_list)
-            if len(node_list) != len(secondary_node_list) or node_list[i]['id'] != secondary_node_list[i]['id']:
-                node_list = grouping(node_list.copy())
-                secondary_node_list = node_list.copy()
+            if len(sorted_node_list) != len(secondary_node_list) or \
+                    sorted_node_list[i]['id'] != secondary_node_list[i]['id']:
+                secondary_node_list = grouping(node_list.copy())
                 break
 
         # ここにそれ以降の処理を書く　あんまりいい実装じゃない
 
 
 def _init_connect_network():
+    global my_node_id
     print('/*----init_connect_network----*/')
-    pre_node_list = None
     my_ip = None
     try:
         my_ip = ifaddresses('en0')[AF_INET][0]['addr']
@@ -52,7 +55,7 @@ def _init_connect_network():
         my_ip = ifaddresses('eth0')[AF_INET][0]['addr']
     finally:
         request_ip = input('request_ip:')
-        res = throw_add_request(node_list, request_ip, my_ip)
+        res, my_node_id = throw_add_request(node_list, request_ip, my_ip)
         if res is False:
             # もし他のノードが存在しなかった時
             pre_node_list = create_node_list()
