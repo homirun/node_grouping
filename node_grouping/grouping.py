@@ -9,7 +9,7 @@ def grouping(node_list):
 
     sorted_node_list = boot_time_upper_sort(node_list)
 
-    grouped_node_list = []
+    grouped_node_list = list()
     node_list_length = len(sorted_node_list)
 
     # node数がgroup_num以下の時の処理
@@ -21,7 +21,8 @@ def grouping(node_list):
             grouped_node_list.append(sorted_node_list.pop(0))
 
     else:
-        for i in range(group_num):
+        for i in range(group_num - 1):
+            local_grouped_list = list()
             flag = True
             for j in range(int(node_list_length / group_num)):
                 # popで取り出してgrouped_node_listに入れる
@@ -30,34 +31,37 @@ def grouping(node_list):
                     flag = False
                     sorted_node_list[0]['is_primary'] = False
                     sorted_node_list[0]['group_id'] = i + 1
-                    grouped_node_list.append(sorted_node_list.pop(0))
+                    local_grouped_list.append(sorted_node_list.pop(0))
                 else:
                     flag = True
                     sorted_node_list[-1]['is_primary'] = False
                     sorted_node_list[-1]['group_id'] = i + 1
-                    grouped_node_list.append(sorted_node_list.pop(-1))
+                    local_grouped_list.append(sorted_node_list.pop(-1))
             # 何回もソートかけてるので直したい
-            grouped_node_list = boot_time_upper_sort(grouped_node_list)
-            grouped_node_list[-1]['is_primary'] = True
+            local_grouped_list = boot_time_upper_sort(local_grouped_list)
+            local_grouped_list[-1]['is_primary'] = True
+            grouped_node_list.extend(local_grouped_list)
 
         last_node_groups_count = node_list_length % group_num
 
-        if last_node_groups_count > 0:
-            flag = True
-            for k in range(last_node_groups_count):
-                if flag:
-                    flag = False
-                    sorted_node_list[0]['is_primary'] = False
-                    sorted_node_list[0]['group_id'] = group_num
-                    grouped_node_list.append(sorted_node_list.pop(0))
-                else:
-                    flag = True
-                    sorted_node_list[-1]['is_primary'] = False
-                    sorted_node_list[-1]['group_id'] = group_num
-                    grouped_node_list.append(sorted_node_list.pop(-1))
+        # 最後のグループだけ端数のノードの処理があるため別
+        local_grouped_list = list()
+        flag = True
+        for k in range(int(node_list_length / group_num) + last_node_groups_count):
+            if flag:
+                flag = False
+                sorted_node_list[0]['is_primary'] = False
+                sorted_node_list[0]['group_id'] = group_num
+                local_grouped_list.append(sorted_node_list.pop(0))
+            else:
+                flag = True
+                sorted_node_list[-1]['is_primary'] = False
+                sorted_node_list[-1]['group_id'] = group_num
+                local_grouped_list.append(sorted_node_list.pop(-1))
 
-        grouped_node_list = boot_time_upper_sort(grouped_node_list)
-        grouped_node_list[-1]['is_primary'] = True
+        local_grouped_list = boot_time_upper_sort(local_grouped_list)
+        local_grouped_list[-1]['is_primary'] = True
+        grouped_node_list.extend(local_grouped_list)
 
     grouped_node_list = boot_time_upper_sort(grouped_node_list)
     print(grouped_node_list)

@@ -97,7 +97,7 @@ def get_my_group_id(nodes, my_id):
     for i in nodes:
         if i['id'] == my_id:
             my_group_id = i['group_id']
-
+            break
     return my_group_id
 
 
@@ -107,3 +107,16 @@ def get_my_group_node_list(nodes, my_group_id):
         if i['group_id'] == my_group_id:
             my_group_node_list.append(i)
     return my_group_node_list
+
+
+def get_is_primary(nodes, my_id):
+    is_primary = False
+
+    for i in nodes:
+        if i['id'] == my_id:
+            is_primary = i['is_primary']
+            break
+
+    return is_primary
+
+

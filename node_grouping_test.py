@@ -37,9 +37,11 @@ def main():
         # print(id(node_list))
         sorted_node_list = boot_time_upper_sort(node_list)
         for i in range(len(node_list)):
+            # print(i)
             if len(sorted_node_list) != len(secondary_node_list) or \
                     sorted_node_list[i]['id'] != secondary_node_list[i]['id']:
                 secondary_node_list = grouping(node_list.copy())
+                # share_node_list(secondary_node_list, my_node_id)
                 break
 
         # ここにそれ以降の処理を書く　あんまりいい実装じゃない

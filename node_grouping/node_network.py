@@ -2,7 +2,7 @@ import requests
 import json
 import uptime
 from flask import Flask, request
-from node_grouping.node_list import NodeEncoder, create_node_id, Node, get_boot_unix_time
+from node_grouping.node_list import *
 app = Flask(__name__)
 node_list = list()
 
@@ -40,20 +40,39 @@ def start_api_server(nodes):
     app.run('0.0.0.0', port=5000, debug=True, use_reloader=False)
 
 
-def node_list_share(nodes, my_node_id):
+def share_node_list(nodes, my_node_id):
     # この処理はPrimary決定時にグローバルとして自分がPrimaryであるかどうかを保持したほうがいいかもしれない
-    is_primary = False
-    for i in nodes:
-        if i['id'] == my_node_id and i['is_primary'] is True:
-            # 自分がPrimary
-            is_primary = True
-            break
-        else:
-            pass
-    if is_primary is False:
-        # Primaryでないとき
-        pass
-    pass
+    my_group_id = get_my_group_id(nodes, my_node_id)
+    is_primary = get_is_primary(nodes, my_node_id)
+    my_group_node_list = get_my_group_node_list(nodes, my_group_id)
+    destination_ip_list = list()
+    if is_primary is True:
+        print('**** list_share: primary *****')
+        # 他のprimaryへ
+        for i in nodes:
+            if i['is_primary'] is True:
+                destination_ip_list.append(i['ip'])
+
+        # 自グループの一般ノードへ
+        for i in my_group_node_list:
+            if i['is_primary'] is False:
+                destination_ip_list.append(i['ip'])
+                break
+
+    else:
+        # 自分がPrimaryではないとき自グループのprimaryへ
+        for i in my_group_node_list:
+            if i['is_primary'] is True:
+                destination_ip_list.append(i['ip'])
+                break
+
+    for i in destination_ip_list:
+        request_url = 'http://' + i + '/api/renew_node_list'
+        res = requests.post(request_url,
+                            json.dumps({'type': 'node_list_share', 'node_list': nodes}),
+                            headers={'Content-Type': 'application/json'})
+        res = res.json()
+        print(res)
 
 
 # 送信側
