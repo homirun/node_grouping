@@ -2,7 +2,7 @@ from netifaces import interfaces, ifaddresses, AF_INET
 import uuid
 import json
 import uptime
-
+from datetime import datetime
 
 # class NodeList(dict):
 #     def __init__(self):
@@ -91,6 +91,10 @@ def get_boot_unix_time():
     return uptime.boottime().timestamp()
 
 
+def get_now_unix_time():
+    return datetime.now().strftime('%s')
+
+
 def get_my_group_id(nodes, my_id):
     my_group_id = None
 
@@ -109,6 +113,14 @@ def get_my_group_node_list(nodes, my_group_id):
     return my_group_node_list
 
 
+def get_primary_node_list(nodes):
+    primary_node_list = list()
+    for i in nodes:
+        if i['is_primary'] is True:
+            primary_node_list.append(i)
+    return primary_node_list
+
+
 def get_is_primary(nodes, my_id):
     is_primary = False
     for i in nodes:
@@ -119,3 +131,10 @@ def get_is_primary(nodes, my_id):
     return is_primary
 
 
+def get_is_group_for_ip(nodes, ip):
+    is_my_group = False
+    for i in nodes:
+        if i['ip'] == ip:
+            is_my_group = True
+            break
+    return is_my_group
