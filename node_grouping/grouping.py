@@ -83,7 +83,7 @@ def boot_time_upper_sort(node_list: list):
     # boot_time(起動した日時)が最新のほうが上になるようにソート
     if len(node_list) <= 1:
         time.sleep(1)
-    return sorted(node_list, key=lambda x: x['boot_time'], reverse=True)
+    return sorted(node_list, key=lambda x: (x['boot_time'], x['id']), reverse=True)
 
 
 def node_id_upper_sort(node_list: list):

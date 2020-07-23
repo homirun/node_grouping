@@ -33,14 +33,16 @@ def renew_node_list():
     is_primary = get_is_primary(node_list, my_node_id)
 
     # print(request_obj)
-    node_list.clear()
-    node_list.extend(request_obj['node_list'])
-    if request_obj['for_primary']:
-        node_list.append({'sender_ip': request.remote_addr})
-        node_list.append('for_primary')
-    return json.dumps({'status': 200, 'response': 'request_response'}, cls=NodeEncoder)
-    # else:
-    #     return json.dumps({'status': 500, 'response': 'Error: old time_stamp'}, cls=NodeEncoder)
+    # TODO:リストが短くならないように暫定処理
+    if len(node_list) < len(request_obj['node_list']):
+        node_list.clear()
+        node_list.extend(request_obj['node_list'])
+        if request_obj['for_primary']:
+            node_list.append({'sender_ip': request.remote_addr})
+            node_list.append('for_primary')
+        return json.dumps({'status': 200, 'response': 'request_response'}, cls=NodeEncoder)
+    else:
+        return json.dumps({'status': 500, 'response': 'Error: list length too short'}, cls=NodeEncoder)
 
 
 def start_api_server(nodes, my_id):
@@ -53,21 +55,23 @@ def start_api_server(nodes, my_id):
 
 def share_node_list(nodes, old_nodes, sender_ip, my_id, is_for_primary):
     # この処理はPrimary決定時にグローバルとして自分がPrimaryであるかどうかを保持したほうがいいかもしれない
-    my_group_id = get_my_group_id(nodes, my_id)
-    is_primary = get_is_primary(nodes, my_id)
+    my_group_id = get_my_group_id(old_nodes, my_id)
+    is_primary = get_is_primary(old_nodes, my_id)
     old_my_group_node_list = get_my_group_node_list(old_nodes, my_group_id)
     destination_ip_list = list()
+
+    # TODO: old_nodeがまとめて更新されるとずれて終わる可能性
     if is_primary is True:
         print('**** list_share: primary *****')
         # 他のprimaryへ
         # 他のprimaryから来た更新で無いならば
         for i in old_nodes:
-            if i['is_primary'] is True and i['id'] != my_id and i['ip'] != sender_ip:
+            if i['is_primary'] is True and i['id'] != my_id and i['ip'] != sender_ip and is_for_primary is False:
                 destination_ip_list.append(i['ip'])
 
         # 自グループの一般ノードへ
         for i in old_my_group_node_list:
-            if i['is_primary'] is False and i['ip'] != sender_ip:
+            if i['is_primary'] is False and i['id'] != my_id and i['ip'] != sender_ip:
                 destination_ip_list.append(i['ip'])
                 break
 
@@ -75,10 +79,9 @@ def share_node_list(nodes, old_nodes, sender_ip, my_id, is_for_primary):
         # 自分がPrimaryではないとき自グループのprimaryへ
         print('**** list_share: normal *****')
         for i in old_my_group_node_list:
-            if i['is_primary'] is True and i['ip'] != sender_ip:
+            if i['is_primary'] is True and i['id'] != my_id and i['ip'] != sender_ip:
                 destination_ip_list.append(i['ip'])
                 break
-
 
     print('destination_ip_list:')
     print(destination_ip_list)

@@ -77,7 +77,7 @@ def main():
             if len(sorted_node_list) != len(sorted_secondary_node_list) or \
                     sorted_node_list[i]['id'] != sorted_secondary_node_list[i]['id']:
                 sorted_node_list = grouping(sorted_node_list.copy())
-                share_node_list(sorted_node_list, secondary_node_list, sender_ip,  my_node_id, is_for_primary)
+                share_node_list(sorted_node_list.copy(), sorted_secondary_node_list.copy(), sender_ip,  my_node_id, is_for_primary)
                 secondary_node_list = sorted_node_list
                 break
 
