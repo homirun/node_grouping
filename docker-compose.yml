@@ -141,29 +141,28 @@ services:
       - node7
     command: bash -c "sleep 13 && python /var/node_grouping_test.py node1:5000"
 
-#  node9:
-#    build: ./
-#    image: python:3.8
-#    container_name: node9
-#    volumes:
-#      - ./:/var/
-#    tty: true
-#    ports:
-#      - 9200:5000
-#    depends_on:
-#      - node8
-#    command: bash -c "sleep 15 && python /var/node_grouping_test.py node1:5000"
-#
-#  node10:
-#    build: ./
-#    image: python:3.8
-#    container_name: node10
-#    volumes:
-#      - ./:/var/
-#    tty: true
-#    ports:
-#      - 10000:5000
-#    depends_on:
-#      - node1
-##    command: python /var/node_grouping_test.py node1:5000"
-#
+  node9:
+    build: ./
+    image: python:3.8
+    container_name: node9
+    volumes:
+      - ./:/var/
+    tty: true
+    ports:
+      - 9200:5000
+    depends_on:
+      - node8
+    command: bash -c "sleep 15 && python /var/node_grouping_test.py node1:5000"
+
+  node10:
+    build: ./
+    image: python:3.8
+    container_name: node10
+    volumes:
+      - ./:/var/
+    tty: true
+    ports:
+      - 10000:5000
+    depends_on:
+      - node1
+    command: bash -c "sleep 17 && python /var/node_grouping_test.py node1:5000"

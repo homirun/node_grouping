@@ -40,8 +40,11 @@ def renew_node_list():
         if request_obj['for_primary']:
             node_list.append({'sender_ip': request.remote_addr})
             node_list.append('for_primary')
+            print('nodelist renewed in true for_primary')
+        print('nodelist renewed in false for_primary')
         return json.dumps({'status': 200, 'response': 'request_response'}, cls=NodeEncoder)
     else:
+        print('nodelist failed to renew ')
         return json.dumps({'status': 500, 'response': 'Error: list length too short'}, cls=NodeEncoder)
 
 
